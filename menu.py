@@ -7,20 +7,15 @@ import os
 # have a function that checks to see if the DB exists. If it does, don't run that function. If it doesn't, run that function
 
 
-def login_success():
+def show_menu():
 
     print("----------Welcome to the Menu!----------")
     time.sleep(1)
     print("What would you like to do?")
-    time.sleep(0.5)
     print("1. Add a new password")
-    time.sleep(0.5)
     print("2. Update/Remove a password")
-    time.sleep(0.5)
     print("3. Retrieve a password")
-    time.sleep(0.5)
     print("4. Display all passwords")
-    time.sleep(0.5)
     print("5. Exit")
     print("\n")
 
@@ -39,7 +34,7 @@ if pass_manager.check_master():
 
     while True:
 
-        login_success()
+        show_menu()
         choice = input("Please enter your choice: ")
         print("\n")
         if choice == "1":

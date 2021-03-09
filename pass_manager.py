@@ -2,7 +2,6 @@ import time
 import db_manager
 import hash_script
 import pyperclip
-from cryptography.fernet import Fernet
 
 
 def first_time():
@@ -35,28 +34,66 @@ def add_password():
     # take inputs
     svc = input("Enter service: ")
     user = input("Enter your username: ")
-    length = int(input("Enter the desire length of your encrypted password: "))
-    time.sleep(1)
+    manual = input("Would you like to manually enter your own password(y/n): ")
+    if manual == "y":
+        personal = input("Please enter your own password: ")
+        print("Your password for " + svc + " is: " + personal)
+        time.sleep(0.5)
+        print("-"*30)
+        time.sleep(0.5)
+        pyperclip.copy(personal)
+        print("Password for " + svc + " has been copied to the clipboard!")
+        print("-"*30)
+        db_manager.db_add(svc, user, personal)
+        time.sleep(1)
+        print("The password for " + svc + " has been added to the database!")
+        print("-"*30)
+        print("\n")
+        time.sleep(1)
+    else:
 
-    # generate password
-    final = hash_script.final_pwd(length)
-    print("Your generated password for " + svc + " is: " + final)
-    time.sleep(0.5)
-    print("-"*30)
-    time.sleep(0.5)
-    pyperclip.copy(final)
-    print("Password for " + svc + " has been copied to the clipboard!")
-    print("-"*30)
+        length = int(
+            input("Enter the desire length of your encrypted password: "))
+        custom = input(
+            "Would you like a password with special characters, or without special characters?(1-with/2-without): ")
+        if custom == '2':
+            cust_pwd = hash_script.custom_pwd(length)
+            print("Your generated password for " + svc + " is: " + cust_pwd)
+            time.sleep(0.5)
+            print("-"*30)
+            time.sleep(0.5)
+            pyperclip.copy(cust_pwd)
+            print("Password for " + svc + " has been copied to the clipboard!")
+            print("-"*30)
+            db_manager.db_add(svc, user, cust_pwd)
+            time.sleep(1)
 
-    # Save password to clipboard
+            print("The password for " + svc +
+                  " has been added to the database!")
+            print("-"*30)
+            print("\n")
+            time.sleep(1)
+        else:
+            # generate password
+            final = hash_script.final_pwd(length)
+            print("Your generated password for " + svc + " is: " + final)
+            time.sleep(0.5)
+            print("-"*30)
+            time.sleep(0.5)
+            pyperclip.copy(final)
+            print("Password for " + svc + " has been copied to the clipboard!")
+            print("-"*30)
 
-    db_manager.db_add(svc, user, final)
-    time.sleep(1)
+        # Save password to clipboard
 
-    print("The password for " + svc + " has been added to the database!")
-    print("-"*30)
-    print("\n")
-    time.sleep(1)
+            db_manager.db_add(svc, user, final)
+            time.sleep(1)
+
+            print("The password for " + svc +
+                  " has been added to the database!")
+            print("-"*30)
+            print("\n")
+            time.sleep(1)
 
 
 def update_password():
@@ -68,8 +105,6 @@ def update_password():
         # check if svc exists in db
         if db_manager.db_chek(svc) == False:
             break
-        else:
-            pass
 
         # except:
         #     print("there's an error")
@@ -147,8 +182,6 @@ def retrieve_password():
 
         if exit == "y":
             break
-        else:
-            continue
 
 
 def display_all():
@@ -164,9 +197,6 @@ def display_all():
 
         if exit == "y":
             print("\n")
-
             break
-        else:
-            continue
 
     # closing functionality

@@ -1,5 +1,4 @@
 import sqlite3
-import pass_manager
 import pyperclip
 import time
 
@@ -48,7 +47,7 @@ def db_grab(service):
 
     print("-"*30)
 
-    print("Service " + "|" + " Username " + "|" + " Password")
+    print("Service | Username | Password")
     print("-"*30)
 
     for row in c.execute('SELECT * FROM accounts where service == ?', (service,)):
