@@ -3,17 +3,19 @@ import pass_manager
 import pyperclip
 import time
 
-
 # creation connection object
 
 conn = sqlite3.connect("pw_manager.db")
 
 c = conn.cursor()
 
-c.execute("""CREATE TABLE IF NOT EXISTS accounts (
-    service TEXT,
-    username TEXT,
-    password TEXT) """)
+
+def create_table():
+
+    c.execute("""CREATE TABLE IF NOT EXISTS accounts (
+        service TEXT,
+        username TEXT,
+        password TEXT) """)
 
 
 def db_add(service, username, password):
@@ -36,33 +38,33 @@ def db_remove(service):
 def db_chek(service):
 
     if c.execute('SELECT service from accounts WHERE service = ?', (service,)).fetchone():
-        print("------------------------------------------")
         print("Found " + service)
     else:
-        ("------------------------------------------")
-        print("The the service does not exist in the database!")
+        print("The service does not exist in the database!")
         return False
 
 
 def db_grab(service):
 
+    print("-"*30)
+
     print("Service " + "|" + " Username " + "|" + " Password")
-    print("------------------------------------------")
+    print("-"*30)
 
     for row in c.execute('SELECT * FROM accounts where service == ?', (service,)):
         print(row)
 
     pyperclip.copy(row[2])
-    print("------------------------------------------")
+    print("-"*30)
     print("Password has been copied to the clipboard!")
-    print("------------------------------------------")
+    print("-"*30)
 
 
 def display_db():
     print("----------Display Menu----------")
 
     print("Service " + "|" + " Username " + "|" + " Password")
-    print("------------------------------------------")
+    print("-"*30)
 
     for row in c.execute('SELECT * FROM accounts'):
         time.sleep(0.5)

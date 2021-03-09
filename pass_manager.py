@@ -2,23 +2,30 @@ import time
 import db_manager
 import hash_script
 import pyperclip
-import os
+from cryptography.fernet import Fernet
 
 
 def first_time():
-    print("--------Hello---------")
-    time.sleep(1)
-    print("--------Welcome to Your Password Manager----------")
-    time.sleep(1)
-    master = "Please enter a master password (Keep this safe!): "
-    with open('master.txt', "w") as f:
+    master = input(
+        "Please create your master password. (Store in a safe place!): ")
+    with open('master.txt', 'w+') as f:
         f.write(master)
 
+    print(
+        f"Your master password is {master}. It has been saved to master.txt in your current directory.")
+    print("-"*30)
+    time.sleep(1)
+    print("NOTE: You will be prompted to confirm your password in the next menu!")
+    time.sleep(1)
+    print("-"*30)
 
-def check_master(pwd):
+
+def check_master():
+
+    mast = input("Please enter your master password: ")
     with open('master.txt', "r") as f:
         for line in f:
-            if pwd == line:
+            if mast == line:
                 return True
         return False
 
@@ -26,24 +33,28 @@ def check_master(pwd):
 def add_password():
     print("---------ADD A PASSWORD--------")
     # take inputs
-    svc = input("Enter Service: ")
+    svc = input("Enter service: ")
     user = input("Enter your username: ")
-    pwd = input("Enter your simple password: ")
-
-    # encode values
-    svc_en = svc.encode()
-    pwd_en = pwd.encode()
-
-    # make hex
-    pwd_hex = hash_script.make_password(svc_en, pwd_en)
-
-    # add service, username, and hexed pwd to database
-
-    db_manager.db_add(svc, user, pwd_hex)
+    length = int(input("Enter the desire length of your encrypted password: "))
     time.sleep(1)
 
-    print("The password for " + svc + " has been added!")
-    print("------------------------------------------")
+    # generate password
+    final = hash_script.final_pwd(length)
+    print("Your generated password for " + svc + " is: " + final)
+    time.sleep(0.5)
+    print("-"*30)
+    time.sleep(0.5)
+    pyperclip.copy(final)
+    print("Password for " + svc + " has been copied to the clipboard!")
+    print("-"*30)
+
+    # Save password to clipboard
+
+    db_manager.db_add(svc, user, final)
+    time.sleep(1)
+
+    print("The password for " + svc + " has been added to the database!")
+    print("-"*30)
     print("\n")
     time.sleep(1)
 
@@ -63,30 +74,30 @@ def update_password():
         # except:
         #     print("there's an error")
         #     break
-        print("------------------------------------------")
+        print("-"*30)
         option = input(
             "Would you like to update or remove the password from this service? (1/Update, 2/Remove): ")
 
         if option == "1":
 
-            print("------------------------------------------")
+            print("-"*30)
 
             print("You would like to update the password for " + svc + "."
                   )
 
             # update :
 
-            print("------------------------------------------")
+            print("-"*30)
 
-            new_pwd = input("Enter new plain-text password: ")
-            print("------------------------------------------")
-            new_pwd = new_pwd.encode()
-            new_svc_en = svc.encode()
-            new_pwd_hex = hash_script.make_password(new_svc_en, new_pwd)
-            db_manager.db_update(svc, new_pwd_hex)
+            length = int(input(
+                "Enter the desired length for your new encrypted password: "))
+            print("-"*30)
+
+            new_pwd = hash_script.final_pwd(length)
+            db_manager.db_update(svc, new_pwd)
             time.sleep(1)
             print("The password for " + svc +
-                  " has been updated to: " + str(new_pwd_hex))
+                  " has been updated to: " + str(new_pwd))
             print("\n")
             time.sleep(2)
 
@@ -94,21 +105,21 @@ def update_password():
 
         elif option == "2":
             # remove
-            print("------------------------------------------")
+            print("-"*30)
             print("You would like to remove this service from the database..")
-            print("------------------------------------------")
+            print("-"*30)
             time.sleep(1)
             ru_sure = input(
                 "Are you sure you want to remove this password? (y/n): ")
             if ru_sure == 'y':
                 time.sleep(1)
                 db_manager.db_remove(svc)
-                print("------------------------------------------")
+                print("-"*30)
                 print(svc + " has been successfully removed!")
                 print("\n")
                 time.sleep(2)
             elif ru_sure == 'n':
-                print("------------------------------------------")
+                print("-"*30)
                 print("Returning to menu...")
                 print("\n")
                 time.sleep(2)
@@ -121,15 +132,14 @@ def retrieve_password():
     while True:
         svc = input(
             "Enter the service you want to retrieve the password from: ")
-        print("------------------------------------------")
+        print("-"*30)
         time.sleep(1)
         try:
             db_manager.db_chek(svc)
-            print("------------------------------------------")
 
             time.sleep(1)
         except:
-            print("------------------------------------------")
+
             print("There's an error!")
 
         db_manager.db_grab(svc)
